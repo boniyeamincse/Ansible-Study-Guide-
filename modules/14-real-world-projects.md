@@ -1,45 +1,110 @@
 # Module 14: Real-world Project Labs
 
-## 📌 Project 1: LAMP Stack Deployment
-**Goal:** Deploy Linux, Apache, MySQL, PHP.
+## 📌 Scenario
+You are a DevOps Engineer. You need to automate the deployment of a LAMP stack (Linux, Apache, MySQL, PHP) capable of hosting a dynamic website.
 
-**Structure:**
-- **Roles:** `common`, `apache`, `mysql`, `php`.
-- **Inventory:** `prod`.
-- **Playbook:** `site.yml`.
+---
 
-**Tasks:**
-1. **Common:** Install vim, git, update cache.
-2. **Apache:** Install, push vhost config.
-3. **MySQL:** Install server, create DB, create User.
-4. **PHP:** Install php-fpm, php-mysql.
+## 🚀 Project 1: The LAMP Stack Playbook
 
-## 📌 Project 2: Multi-Environment Deployment
+**Goal:** Create a complete automation pipeline.
 
-**Goal:** Same playbook, different variables for Dev vs Prod.
+**Files to create:**
+- `inventory/prod.ini`
+- `roles/common/` (basic tools like git, vim)
+- `roles/web/` (apache, php)
+- `roles/db/` (mysql)
+- `site.yml` (Master playbook)
 
-**Setup:**
-- `inventory/dev` -> `group_vars/all.yml` (debug: true)
-- `inventory/prod` -> `group_vars/all.yml` (debug: false)
+### Step 1: Inventory
+`inventory/prod.ini`:
+```ini
+[web]
+web1.example.com
 
-**Command:**
-```bash
-ansible-playbook -i inventory/dev site.yml
-ansible-playbook -i inventory/prod site.yml
+[db]
+db1.example.com
 ```
 
-## 📌 Project 3: CI/CD Integration
-**Goal:** Run Ansible from Jenkins/GitHub Actions.
+### Step 2: Site Playbook
+`site.yml`:
+```yaml
+---
+- name: Apply Common Config
+  hosts: all
+  become: yes
+  roles:
+    - common
 
-**GitHub Actions Example:**
+- name: Setup Database
+  hosts: db
+  become: yes
+  roles:
+    - db
+
+- name: Setup Webserver
+  hosts: web
+  become: yes
+  roles:
+    - web
+```
+
+---
+
+## 🚀 Project 2: Multi-Environment Deployment
+
+**Goal:** Use the **same code** for Dev and Prod, but with different configurations.
+
+**Step 1: Directory Structure**
+```text
+group_vars/
+  all.yml      # Global settings
+inventory/
+  dev/
+    hosts.ini
+    group_vars/
+      all.yml  # Dev specific (debug: true)
+  prod/
+    hosts.ini
+    group_vars/
+      all.yml  # Prod specific (debug: false)
+```
+
+**Step 2: Execution**
+Deploy to Dev:
+```bash
+ansible-playbook -i inventory/dev/hosts.ini site.yml
+```
+Deploy to Prod:
+```bash
+ansible-playbook -i inventory/prod/hosts.ini site.yml
+```
+
+---
+
+## 🚀 Project 3: CI/CD Pipeline (GitHub Actions)
+
+**Goal:** Run Ansible automatically when you push code to GitHub.
+
+**Step 1: Create Workflow File**
+`.github/workflows/deploy.yml`:
 ```yaml
 name: Ansible Deploy
-on: push
+on: [push]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
       - name: Run Playbook
-        run: ansible-playbook -i inventory site.yml
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: site.yml
+          directory: ./
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: ${{ secrets.INVENTORY }}
 ```
+*> **Note:** You must add `SSH_PRIVATE_KEY` to your GitHub Repository Secrets.*
