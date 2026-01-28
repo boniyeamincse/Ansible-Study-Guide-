@@ -1,6 +1,8 @@
 # 🚀 Ansible Lab-Oriented Study Guide
 
 **Welcome to the Ultimate Ansible Course!**  
+**Author:** Boni Yeamin  
+
 This guide takes you from zero to hero in Ansible automation. It is structured into **14 Modules**, each containing detailed explanations and **hands-on labs**.
 
 ---
@@ -60,6 +62,11 @@ This guide takes you from zero to hero in Ansible automation. It is structured i
    ```
 2. Follow the modules in order.
 3. **Do the labs!** Automation is a muscle; you need to exercise it.
+
+---
+
+## 🤝 Contribution
+If you would like to contribute to this guide or have any suggestions, please feel free to **contact us**. We welcome feedback and improvements!
 
 ---
 *Happy Automating!* 🤖
